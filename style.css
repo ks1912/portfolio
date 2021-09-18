@@ -1,0 +1,191 @@
+html
+{
+    width: 100%;
+    height: 100%;
+    background-color: black;
+}
+.b1
+{
+    /*background-color: black;*/
+    color: white;
+    position: relative;
+    font-family: cursive;
+    padding: 0%;
+    border: 0%;
+    margin: 0%;
+}
+.collapsible 
+{
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+  
+.active, .collapsible:hover {
+    background-color: #555;
+}
+  
+.content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: black;
+
+}
+.head 
+{
+    background-color: black;
+    float:left;
+    text-align: left;
+    color: white;
+}
+/*resume file editing*/
+.container
+{
+    /*border: 3px solid blue;*/
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    flex-wrap: wrap;
+}
+.left_side
+{
+    /*border: 3px solid rgb(14, 4, 34);*/
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: center;
+    color: white;
+    background-color: black;
+}
+.right_side
+{
+    /*border: 3px solid red;*/
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+    flex: 1;
+    flex-wrap: wrap;
+    background-color: lightblue;
+}
+.img_name h1
+{
+    font-size: 30px;
+    padding-top: 5%;
+    margin: 0px;
+    border: 0px;
+    text-transform: uppercase;
+}
+.img_name h2
+{
+    font-size: 15px;
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+    font-weight: lighter;
+}
+.img_name a
+{
+    color: white;
+}
+.objective
+{
+    padding:0%;
+    padding-bottom: 0%;
+    margin: 0px;
+    border: 0px;
+    text-align: center;
+}
+.objective p
+{
+    padding:1%;
+}
+.Education
+{
+    padding:0%;
+    margin: 0px;
+    border: 0px;
+    text-align: center;
+    padding-left: 20%;
+}
+.Education h1
+{
+    padding-left: -1%;
+}
+.Experience
+{
+    padding-left: 20%;
+}
+.Experience h1
+{
+    padding-left: 30%;
+}
+.Experience table
+{
+    text-align: center;
+}
+.hobbies ul
+{
+    padding:0px;
+    margin: 0px;
+    border: 0px;
+}
+.hobbies h1
+{
+    padding-top: 5%;
+    padding-bottom: 0%;
+    text-align: center;
+}
+.language ul
+{
+    padding:0px;
+    margin: 0px;
+    border: 0px;
+}
+.language h1
+{
+    padding-top: 5%;
+    padding-bottom: 0%;
+    text-align: center;
+}
+.Projects
+{
+    text-align: center;
+    margin: 0px;
+    border: 0px;
+}
+.lhead
+{
+    text-align: center;
+}
+.rhead
+{
+    text-align: center;
+    padding-left: 5%;
+}
+.JobRole
+{
+    text-align: center;
+}
+.technicalskills
+{
+    padding:0%;
+    margin: 0px;
+    border: 0px;
+    text-align: center;
+    padding-left: 15%;
+}
+.technicalskills h1
+{
+    padding:0%;
+    margin: 0px;
+    border: 0px;
+    text-align: center;
+}

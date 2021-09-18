@@ -1,0 +1,105 @@
+<!Doctype html>
+<html>
+    <head>
+        <title> Portfolio | Kunal Singh | ks1912 </title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+    </head>
+    <body>
+        <div class="b1">
+            <center>
+                <h1>Hi everyone,<br/> I am Kunal Singh!</h1>
+                <div class="img_icon">
+                    <img src="mypic.jpg" alt="my_pic" width="10%" style="border-radius: 50%;"/>
+                </div>
+                <a href="resume.html" target="_blank" style="color: white; text-decoration: white;"><p style="color: white; text-decoration: white;">Click here to open my resume</p></a>
+                <button type="button" class="collapsible">About Me</button>
+                <div class="content">
+                    <p>I am currently working as Trainee Engineer in Feuji. I used to work as Research Associate in IDRBT where I am working on the backend and frontend of RUIBA and also doing research in Adversarial Machine Learning it means how machine learning models can be hacked.<br/> I know Python, JavaScript, C Language also have good knowledge on the topics of My SQL and MongoDB.<br/> I have also developed some of my personal projects.<br/> Thank you for giving your precious time and study my profile.</p>
+                </div>
+                <button type="button" class="collapsible">Tools and Technology</button>
+                <div class="content">
+                    <ul>
+                        <li><b>Language:</b>Python, PySpark, C++, HTML, CSS, MySQL, JS, JAVA, PHP</li>
+                        <li><b>Concept Skill:</b>Data Structure, Algorithm</li>
+                        <li><b>Software & Tools:</b>VSCode, Pycharm, Latex</li>
+                        <li><b>Operating System:</b>Linux, Windows</li>
+                        <li><b>Cyber Security: BurpSuite, Bug Bounty</b></li>
+                        <li><b>Data Science:</b> Pandas, Numpy, Scikit-Learn, Data Analysis, Machine Learning, Spark</li>
+                        <li><b>Big Data:</b>Spark, Hadoop, Yarn</li>
+                    </ul>
+                </div>
+                <button type="button" class="collapsible">Domnain and Industry Knowledge</button>
+                <div class="content">
+                    <ul>
+                        <ol>
+                            <li>I have wokred as Front End and Backend Developer and Completed my Internship in The Spark Foundation and Engigyan.</li>
+                            <li>I have worked as Research Associate in IDRBT(RBI).</li>
+                            <li>Currently I am working as Trainee Engineer at Feuji.</li>
+                        </ol>
+                    </ul>
+                </div>
+                <button type="button" class="collapsible">Personal Details</button>
+                <div class="content">
+                    <p>I have completed my scolling from New Delhi. Then I sifted to Hyderabad. <br/>
+                    Here I completed my college from Abhinav Hi-Tech College of Engineering. <br/>
+                    I have choosed to opt software development as my carrer.</p>
+                </div>
+                <button type="button" class="collapsible">Social Media Handles</button>
+                <div class="content">
+                    <a href="https://www.linkedin.com/in/ks1912/" target="_blank"><img src="linkedin.jpg" alt="Linked In" style="width:42px;height:42px;"></a>
+                    <a href="https://github.com/ks1912" target="_blank"><img src="github.png" alt="GitHub" style="width:82px;height:42px;"></a>
+                </div>
+                <button type="button" class="collapsible">Projects</button>
+                <div class="content">
+                    <p>Artificial Intelligence<br/>Web Development<br/>Cyber Security</p>
+                    <a href="https://github.com/ks1912" target="_blank"><img src="AI.jpg" alt="AI" style="width:42px;height:42px;"></a>
+                    <a href="https://github.com/ks1912" target="_blank"><img src="WD.jpg" alt="WD" style="width:82px;height:42px;"></a>
+                    <a href="https://github.com/ks1912" target="_blank"><img src="CS.jpg" alt="CS" style="width:82px;height:42px;"></a>
+                </div>
+                <button type="button" class="collapsible">Certifications</button>
+                <div class="content">
+                    <ol>
+                        <li>Web Development Training by Internshala</li>
+                        <li>Cyber Security Training by Internshala</li>
+                        <li>MySQL Certification by Coursera ( Daking University )</li>
+                        <li>Python Programming by UDEMY</li>
+                        <li>IBM SPSS Modular 16.0(V3)</li>
+                    </ol>
+                </div>
+                <button type="button" class="collapsible">Achivements</button>
+                <div class="content">
+                    <ol><li>1st Prize in Paper Presentation (MLR)</li>
+                    <li>2nd Prize in Paper Presentation (VJIT)</li>
+                    <li>3rd Position in Regional Sports Meet 2013</li>
+                    <li>School Senior (Captain) of NCC K.V.No.2 DC-10</li></ol>
+                </div>
+<!--                <button type="button" class="collapsible">Cheet Sheet</button>
+                <div class="content">
+                    <p>Artificial Intelligence<br/>Web Development<br/>Cyber Security</p>
+                    <a href="aicheatsheet.html" target="_blank"><img src="AI.jpg" alt="AI" style="width:42px;height:42px;"></a>
+                    <a href="wdcheatsheet.html" target="_blank"><img src="WD.jpg" alt="WD" style="width:82px;height:42px;"></a>
+                    <a href="cscheatsheet.html" target="_blank"><img src="CS.jpg" alt="CS" style="width:82px;height:42px;"></a>
+                </div>
+-->                
+                <a href="https://www.google.com/search?q=ks1912" target="_blank" style="color: white; text-decoration: white; padding-bottom: 5%; margin-bottom: 5%; border-bottom: 5%;"><h3>To know more about me just google ks1912</h3></a>
+            </center>
+        </div>
+    </body>
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          });
+        }
+    </script>
+</html>

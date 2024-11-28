@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "made by and owned by kunal singh",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ks1912/portfolio.git"
+  },
+  "keywords": [
+    "Portfolio"
+  ],
+  "author": "Kunal Singh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ks1912/portfolio/issues"
+  },
+  "homepage": "https://github.com/ks1912/portfolio#readme"
+}

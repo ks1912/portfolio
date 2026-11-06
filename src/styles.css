@@ -168,3 +168,4 @@ input[type=checkbox] { width: auto; }
 .snip-code code { min-width: 0; flex: 1; scrollbar-width: none; }
 .snip-code code { white-space: pre-wrap; word-break: break-word; overflow: visible; }
 .mini { width: auto; padding: 8px 10px; font-size: .85rem; }
+a.card.row-card { display: flex; }

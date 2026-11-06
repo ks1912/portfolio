@@ -9,6 +9,7 @@ export const profile = {
   github: 'ks1912',
   githubUrl: 'https://github.com/ks1912',
   linkedinUrl: 'https://www.linkedin.com/in/ks1912/',
+  devtoUrl: 'https://dev.to/ks1912',
   about:
     'I build the safety net that lets product teams ship fast. Over 5 years I have designed automation frameworks, API and load testing strategies, and CI/CD pipelines for healthcare, e-commerce and BFSI products, and I lead the people who run them.',
 };
@@ -106,3 +107,15 @@ export async function trackView(path) {
     /* analytics must never break the site */
   }
 }
+
+export const devPosts = [
+  { title: 'Playwright Test Frameworks and Design Patterns: What to Use, When, and How (With TypeScript Examples)', date: '2026-09-26', tag: 'Playwright', url: 'https://dev.to/ks1912/playwright-test-frameworks-and-design-patterns-what-to-use-when-and-how-with-typescript-2i5j' },
+  { title: 'Playwright and Its AI Agent: A Practical Guide', date: '2026-09-14', tag: 'Playwright', url: 'https://dev.to/ks1912/playwright-and-its-ai-agent-a-practical-guide-2j2n' },
+  { title: 'Text to CSV using Javascript (JS)', date: '2022-08-18', tag: 'JavaScript', url: 'https://dev.to/ks1912/text-to-csv-using-javascript-js-om4' },
+  { title: 'Getting started with docker', date: '2022-02-09', tag: 'Docker', url: 'https://dev.to/ks1912/getting-started-with-docker-34g6' },
+  { title: 'A Detailed Report on SQL INJECTION', date: '2021-10-11', tag: 'Security', url: 'https://dev.to/ks1912/a-detailed-report-on-sql-injection-439m' },
+  { title: 'Cross-Site Scripting or XSS', date: '2021-10-11', tag: 'Security', url: 'https://dev.to/ks1912/cross-site-scripting-or-xss-4ppf' },
+  { title: 'How to bypass input filter', date: '2021-10-09', tag: 'Security', url: 'https://dev.to/ks1912/how-to-bypass-input-filter-59kd' },
+];
+
+export const fmtDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });

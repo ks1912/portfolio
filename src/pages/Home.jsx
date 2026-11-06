@@ -3,17 +3,15 @@ import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import TestRun from '../components/TestRun';
 import ContactForm from '../components/ContactForm';
-import { profile, stats, experience, education, skills, loadProjects, loadPosts, fallbackProjects } from '../lib/data';
+import { profile, devPosts, fmtDate, stats, experience, education, skills, loadProjects, fallbackProjects } from '../lib/data';
 import { supabase } from '../lib/supabase';
 
 export default function Home() {
   const [projects, setProjects] = useState(fallbackProjects);
-  const [posts, setPosts] = useState([]);
-  const [views, setViews] = useState(null);
+    const [views, setViews] = useState(null);
 
   useEffect(() => {
     loadProjects().then(setProjects);
-    loadPosts().then((p) => setPosts(p.slice(0, 3)));
     supabase?.rpc('view_count').then(({ data }) => typeof data === 'number' || typeof data === 'string' ? setViews(Number(data)) : null);
   }, []);
 
@@ -96,27 +94,27 @@ export default function Home() {
         ))}
       </section>
 
-      {posts.length > 0 && (
-        <section className="sec">
-          <Reveal><h2><span className="num">05</span> Writing</h2></Reveal>
-          <div className="projects">
-            {posts.map((p) => (
-              <Link key={p.id} to={`/blog/${p.slug}`} className="card proj">
+      <section id="writing" className="sec">
+        <Reveal><h2><span className="num">05</span> Writing</h2></Reveal>
+        <div className="projects">
+          {devPosts.slice(0, 3).map((p, i) => (
+            <Reveal key={p.url} delay={i * 70}>
+              <a href={p.url} target="_blank" rel="noreferrer" className="card proj">
                 <h3>{p.title}</h3>
-                <p>{p.excerpt}</p>
-                <span className="dim">{new Date(p.created_at).toLocaleDateString()}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                <span className="dim mono">{fmtDate(p.date)} · {p.tag}</span>
+              </a>
+            </Reveal>
+          ))}
+        </div>
+        <p style={{ marginTop: 20 }}><Link to="/blog">All {devPosts.length} articles →</Link></p>
+      </section>
 
       <section id="contact" className="sec">
         <Reveal><h2><span className="num">06</span> Let's talk</h2></Reveal>
         <div className="contact-grid">
           <Reveal>
             <p className="lede">Hiring, collaborating, or want to pair on a tricky test problem? Send a note, or open a live coding room and we can write it together.</p>
-            <p className="mono">{profile.email}<br />{profile.location}<br /><a href={profile.githubUrl} target="_blank" rel="noreferrer">github.com/{profile.github} ↗</a><br /><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">linkedin.com/in/ks1912 ↗</a></p>
+            <p className="mono">{profile.email}<br />{profile.location}<br /><a href={profile.githubUrl} target="_blank" rel="noreferrer">github.com/{profile.github} ↗</a><br /><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">linkedin.com/in/ks1912 ↗</a><br /><a href={profile.devtoUrl} target="_blank" rel="noreferrer">dev.to/ks1912 ↗</a></p>
           </Reveal>
           <Reveal delay={100}><ContactForm /></Reveal>
         </div>

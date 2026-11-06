@@ -167,9 +167,3 @@ insert into public.projects (title, description, tags, featured, sort) values
 ('Banking & Fintech QA (IDRBT – RBI)', 'Selenium WebDriver UI frameworks for payment gateway flows, plus API testing with Rest Assured and SOAP UI for government financial systems.', '{BFSI,Selenium,Rest Assured,SOAP UI}', true, 3),
 ('Internal Test API Platform', 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', '{Ruby on Rails,Sidekiq,RabbitMQ,PostgreSQL}', false, 4),
 ('Load & Performance Harness', 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', '{K6,Locust,Datadog}', false, 5);
-
-insert into public.posts (slug, title, excerpt, body, published) values
-('killing-flaky-tests', 'Killing flaky tests: a field guide',
- 'The four causes behind most flaky end-to-end tests, and how I remove each one.',
- E'## Why flakiness is a design problem\n\nMost flaky tests are not random. They depend on shared data, on timing, or on an environment that changes underneath them.\n\n## 1. Own your test data\n\nGenerate data through a test API per run instead of sharing fixtures between tests.\n\n## 2. Wait for conditions, never for time\n\n```js\nawait expect(page.getByRole(''status'')).toHaveText(''Saved'');\n```\n\n## 3. Isolate environments\n\nMock third parties and seed state so a run behaves the same every time.\n\n## 4. Quarantine fast\n\nTrack flaky tests visibly and fix them within a sprint.',
- true);

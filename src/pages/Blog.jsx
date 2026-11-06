@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { loadPosts } from '../lib/data';
+import { loadPosts, devPosts, fmtDate, profile } from '../lib/data';
 import { supabase } from '../lib/supabase';
 
 export function BlogList() {
@@ -9,8 +9,17 @@ export function BlogList() {
   return (
     <section className="sec narrow">
       <h2><span className="num">✎</span> Blog</h2>
-      {posts === null && <p className="dim">Loading…</p>}
-      {posts?.length === 0 && <p className="dim">No posts yet.</p>}
+      <p className="lede">Notes on test automation, DevOps and security. My articles are published on dev.to.</p>
+      <div className="stack">
+        {devPosts.map((p) => (
+          <a key={p.url} href={p.url} target="_blank" rel="noreferrer" className="card proj row-card">
+            <div><h3>{p.title}</h3><span className="dim mono">{fmtDate(p.date)} · {p.tag}</span></div>
+            <span className="pass">Read ↗</span>
+          </a>
+        ))}
+        <a href={profile.devtoUrl} target="_blank" rel="noreferrer" className="dim">All articles on dev.to ↗</a>
+      </div>
+      {posts?.length > 0 && <h3 style={{ margin: '40px 0 0' }}>More from this site</h3>}
       <div className="stack">
         {posts?.map((p) => (
           <Link key={p.id} to={`/blog/${p.slug}`} className="card proj">

@@ -1,0 +1,201 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import * as Y from 'yjs';
+import CodeMirror from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { python } from '@codemirror/lang-python';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { yCollab } from 'y-codemirror.next';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../lib/auth';
+import { SupabaseProvider } from '../lib/yprovider';
+
+function useGate() {
+  const { user, loading } = useAuth();
+  if (loading) return <section className="sec narrow"><p className="dim">Loading…</p></section>;
+  if (!user) return <Navigate to="/login" state={{ from: window.location.pathname }} replace />;
+  return null;
+}
+
+export function CollabHome() {
+  const gate = useGate();
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [rooms, setRooms] = useState([]);
+  const [title, setTitle] = useState('');
+  const [lang, setLang] = useState('javascript');
+  const [err, setErr] = useState('');
+
+  const load = useCallback(async () => {
+    const { data } = await supabase.from('collab_sessions').select('id,title,language,owner_id,updated_at').order('updated_at', { ascending: false });
+    setRooms(data || []);
+  }, []);
+  useEffect(() => { if (user) load(); }, [user, load]);
+
+  if (gate) return gate;
+
+  async function create(e) {
+    e.preventDefault();
+    const { data, error } = await supabase
+      .from('collab_sessions')
+      .insert({ title: title || 'Untitled session', language: lang, content: lang === 'python' ? 'print("hello, team")\n' : 'console.log("hello, team");\n' })
+      .select('id')
+      .single();
+    if (error) return setErr(error.message);
+    nav(`/collab/${data.id}`);
+  }
+
+  return (
+    <section className="sec narrow">
+      <h2><span className="num">{'</>'}</span> Live code rooms</h2>
+      <p className="lede">Start a room, invite people by email, and code together in real time. Everyone needs an account.</p>
+      <form className="card form inline" onSubmit={create}>
+        <input placeholder="Room name" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
+        <select value={lang} onChange={(e) => setLang(e.target.value)}>
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+        </select>
+        <button className="btn">Create room</button>
+      </form>
+      {err && <p className="err">{err}</p>}
+      <div className="stack">
+        {rooms.length === 0 && <p className="dim">No rooms yet. Create one, or ask a friend to invite {user.email}.</p>}
+        {rooms.map((r) => (
+          <Link key={r.id} to={`/collab/${r.id}`} className="card proj row-card">
+            <div><h3>{r.title}</h3><span className="dim mono">{r.language} · {r.owner_id === user.id ? 'owner' : 'invited'}</span></div>
+            <span className="dim">{new Date(r.updated_at).toLocaleString()}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function runJs(code, onLine) {
+  const frame = document.createElement('iframe');
+  frame.sandbox = 'allow-scripts';
+  frame.style.display = 'none';
+  const handler = (e) => {
+    if (e.source !== frame.contentWindow) return;
+    onLine(e.data);
+    if (e.data.done) {
+      window.removeEventListener('message', handler);
+      frame.remove();
+    }
+  };
+  window.addEventListener('message', handler);
+  const safe = JSON.stringify(code).replace(/</g, '\\u003c');
+  frame.srcdoc = `<script>
+    const send=(t,m)=>parent.postMessage({t,m},'*');
+    const fmt=a=>a.map(x=>typeof x==='string'?x:JSON.stringify(x)).join(' ');
+    console.log=(...a)=>send('log',fmt(a)); console.error=(...a)=>send('err',fmt(a));
+    const t=setTimeout(()=>{send('err','Timed out after 5s');parent.postMessage({done:true},'*')},5000);
+    Promise.resolve().then(()=>(0,eval)(${safe})).catch(e=>send('err',String(e))).finally(()=>{clearTimeout(t);setTimeout(()=>parent.postMessage({done:true},'*'),50)});
+  <\/script>`;
+  document.body.appendChild(frame);
+}
+
+export function CollabRoom() {
+  const gate = useGate();
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [room, setRoom] = useState(undefined);
+  const [members, setMembers] = useState([]);
+  const [invite, setInvite] = useState('');
+  const [status, setStatus] = useState({ peers: 1 });
+  const [ext, setExt] = useState([]);
+  const [out, setOut] = useState([]);
+  const doc = useMemo(() => new Y.Doc(), [id]);
+  const providerRef = useRef(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('collab_sessions').select('*').eq('id', id).maybeSingle().then(({ data }) => setRoom(data));
+    supabase.from('collab_members').select('email').eq('session_id', id).then(({ data }) => setMembers(data || []));
+  }, [id, user]);
+
+  useEffect(() => {
+    if (!room || !user) return;
+    const provider = new SupabaseProvider(id, doc, user, room.content, (s) => setStatus((p) => ({ ...p, ...s })));
+    providerRef.current = provider;
+    const ytext = doc.getText('code');
+    const name = user.email.split('@')[0];
+    const hue = [...user.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+    provider.awareness.setLocalStateField('user', { name, color: `hsl(${hue} 90% 60%)`, colorLight: `hsl(${hue} 90% 60% / .25)` });
+    setExt([yCollab(ytext, provider.awareness)]);
+
+    let timer;
+    const save = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        supabase.from('collab_sessions').update({ content: ytext.toString(), updated_at: new Date().toISOString() }).eq('id', id);
+      }, 2000);
+    };
+    ytext.observe(save);
+    return () => {
+      clearTimeout(timer);
+      ytext.unobserve(save);
+      provider.destroy();
+    };
+  }, [room?.id, user?.id, doc]);
+
+  if (gate) return gate;
+  if (room === undefined) return <section className="sec narrow"><p className="dim">Loading…</p></section>;
+  if (!room) return <section className="sec narrow"><p>Room not found, or you have not been invited. <Link to="/collab">Back</Link></p></section>;
+
+  const owner = room.owner_id === user.id;
+  const langExt = room.language === 'python' ? python() : javascript();
+
+  async function addMember(e) {
+    e.preventDefault();
+    const email = invite.trim().toLowerCase();
+    if (!email) return;
+    const { error } = await supabase.from('collab_members').insert({ session_id: id, email });
+    if (!error) { setMembers((m) => [...m, { email }]); setInvite(''); }
+  }
+  async function removeMember(email) {
+    await supabase.from('collab_members').delete().eq('session_id', id).eq('email', email);
+    setMembers((m) => m.filter((x) => x.email !== email));
+  }
+  function run() {
+    setOut([]);
+    runJs(doc.getText('code').toString(), (m) => m.t && setOut((o) => [...o, m]));
+  }
+
+  return (
+    <section className="room">
+      <div className="room-head">
+        <div>
+          <Link to="/collab" className="dim">← Rooms</Link>
+          <h2>{room.title}</h2>
+        </div>
+        <div className="room-meta">
+          <span className="chip live">● {status.peers || 1} online</span>
+          <span className="chip">{status.status === 'SUBSCRIBED' ? 'connected' : status.status || 'connecting…'}</span>
+          {room.language === 'javascript' && <button className="btn" onClick={run}>▶ Run</button>}
+        </div>
+      </div>
+      <div className="room-body">
+        <div className="editor">
+          {ext.length > 0 && <CodeMirror height="100%" theme={oneDark} extensions={[langExt, ...ext]} basicSetup={{ history: false }} />}
+        </div>
+        <aside className="side">
+          <h4>People</h4>
+          <p className="mono small">{room.owner_id === user.id ? 'You (owner)' : 'Owner'}</p>
+          {members.map((m) => (
+            <p key={m.email} className="mono small member">{m.email}{owner && <button className="linkbtn" onClick={() => removeMember(m.email)}>remove</button>}</p>
+          ))}
+          {owner && (
+            <form onSubmit={addMember} className="invite">
+              <input type="email" placeholder="invite by email" value={invite} onChange={(e) => setInvite(e.target.value)} />
+              <button className="btn small-btn">Invite</button>
+            </form>
+          )}
+          <p className="dim small">Invited people must sign in with that exact email to join.</p>
+          <h4>Output</h4>
+          <pre className="out">{out.length === 0 ? <span className="dim">Run JavaScript to see output.</span> : out.map((o, i) => <div key={i} className={o.t === 'err' ? 'err' : ''}>{o.m}</div>)}</pre>
+        </aside>
+      </div>
+    </section>
+  );
+}

@@ -8,6 +8,20 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { SupabaseProvider } from '../lib/yprovider';
 
+const fmt = (ms) => {
+  const t = Math.max(0, Math.floor(ms / 1000));
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+};
+
+function useNow(interval = 1000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), interval);
+    return () => clearInterval(t);
+  }, [interval]);
+  return now;
+}
+
 function useGate() {
   const { user, loading } = useAuth();
   if (loading) return <section className="sec narrow"><p className="dim">Loading…</p></section>;
@@ -23,9 +37,11 @@ export function CollabHome() {
   const [title, setTitle] = useState('');
   const [lang, setLang] = useState('javascript');
   const [err, setErr] = useState('');
+  const now = useNow(1000);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from('collab_sessions').select('id,title,language,owner_id,updated_at').order('updated_at', { ascending: false });
+    await supabase.rpc('purge_expired_sessions');
+    const { data } = await supabase.from('collab_sessions').select('id,title,language,owner_id,updated_at,expires_at').order('created_at', { ascending: false });
     setRooms(data || []);
   }, []);
   useEffect(() => { if (user) load(); }, [user, load]);
@@ -46,7 +62,7 @@ export function CollabHome() {
   return (
     <section className="sec narrow">
       <h2><span className="num">{'</>'}</span> Live code rooms</h2>
-      <p className="lede">Start a room, invite people by email, and code together in real time. Everyone needs an account.</p>
+      <p className="lede">Start a room, invite people by email, and code together in real time. Everyone needs an account. Rooms are temporary and close automatically after 50 minutes.</p>
       <form className="card form inline" onSubmit={create}>
         <input placeholder="Room name" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
         <select value={lang} onChange={(e) => setLang(e.target.value)}>
@@ -57,10 +73,10 @@ export function CollabHome() {
       {err && <p className="err">{err}</p>}
       <div className="stack">
         {rooms.length === 0 && <p className="dim">No rooms yet. Create one, or ask a friend to invite {user.email}.</p>}
-        {rooms.map((r) => (
+        {rooms.filter((r) => new Date(r.expires_at).getTime() > now).map((r) => (
           <Link key={r.id} to={`/collab/${r.id}`} className="card proj row-card">
             <div><h3>{r.title}</h3><span className="dim mono">{LANGS[r.language]?.label || r.language} · {r.owner_id === user.id ? 'owner' : 'invited'}</span></div>
-            <span className="dim">{new Date(r.updated_at).toLocaleString()}</span>
+            <span className="chip live">⏱ {fmt(new Date(r.expires_at).getTime() - now)} left</span>
           </Link>
         ))}
       </div>
@@ -106,6 +122,8 @@ export function CollabRoom() {
   const [themeKey, setThemeKey] = useState(() => { try { return localStorage.getItem('editor-theme') || 'one-dark'; } catch { return 'one-dark'; } });
   const doc = useMemo(() => new Y.Doc(), [id]);
   const providerRef = useRef(null);
+  const now = useNow(1000);
+  const nav = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -114,7 +132,7 @@ export function CollabRoom() {
   }, [id, user]);
 
   useEffect(() => {
-    if (!room || !user) return;
+    if (!room || !user || new Date(room.expires_at).getTime() <= Date.now()) return;
     const provider = new SupabaseProvider(id, doc, user, room.content, (s) => setStatus((p) => ({ ...p, ...s })));
     providerRef.current = provider;
     const ytext = doc.getText('code');
@@ -143,6 +161,8 @@ export function CollabRoom() {
   if (!room) return <section className="sec narrow"><p>Room not found, or you have not been invited. <Link to="/collab">Back</Link></p></section>;
 
   const owner = room.owner_id === user.id;
+  const left = new Date(room.expires_at).getTime() - now;
+  const ended = left <= 0;
   const L = LANGS[lang || room.language] || LANGS.javascript;
   const langExt = L.ext();
   const pickTheme = (k) => { setThemeKey(k); try { localStorage.setItem('editor-theme', k); } catch { /* ignore */ } };
@@ -158,6 +178,11 @@ export function CollabRoom() {
     await supabase.from('collab_members').delete().eq('session_id', id).eq('email', email);
     setMembers((m) => m.filter((x) => x.email !== email));
   }
+  async function endSession() {
+    if (!confirm('End this session for everyone and delete it?')) return;
+    await supabase.from('collab_sessions').delete().eq('id', id);
+    nav('/collab');
+  }
   function run() {
     setOut([]);
     runJs(doc.getText('code').toString(), (m) => m.t && setOut((o) => [...o, m]));
@@ -171,7 +196,9 @@ export function CollabRoom() {
           <h2>{room.title}</h2>
         </div>
         <div className="room-meta">
+          <span className={`chip ${left < 5 * 60000 ? 'warn' : 'live'}`} title="Rooms close automatically 50 minutes after creation">⏱ {fmt(left)} left</span>
           <span className="chip live">● {status.peers || 1} online</span>
+          {owner && <button className="btn ghost small-btn" onClick={endSession}>End session</button>}
           <span className="chip">{status.status === 'SUBSCRIBED' ? 'connected' : status.status || 'connecting…'}</span>
           <select className="mini" value={lang || room.language} onChange={(e) => setLang(e.target.value)} aria-label="Language">
             {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -182,7 +209,15 @@ export function CollabRoom() {
           {L.runnable && <button className="btn" onClick={run}>▶ Run</button>}
         </div>
       </div>
-      <div className="room-body">
+      {!ended && left < 5 * 60000 && <p className="err">This room closes in {fmt(left)}. Copy your code now.</p>}
+      {ended && (
+        <div className="ended card">
+          <h3>Session ended</h3>
+          <p className="dim">Rooms last 50 minutes and then close. Create a new one to keep coding.</p>
+          <Link to="/collab" className="btn">Back to rooms</Link>
+        </div>
+      )}
+      <div className="room-body" style={ended ? { opacity: 0.35, pointerEvents: 'none' } : undefined}>
         <div className="editor">
           {ext.length > 0 && <CodeMirror height="100%" theme={THEMES[themeKey].theme} extensions={[langExt, ...ext]} basicSetup={{ history: false }} />}
         </div>

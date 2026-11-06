@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 
-const tabs = ['Overview', 'Messages', 'Projects', 'Posts'];
+const tabs = ['Overview', 'Messages', 'Projects', 'Posts', 'Rooms'];
 
 export default function Admin() {
   const { user, admin, loading } = useAuth();
@@ -18,6 +18,7 @@ export default function Admin() {
       {tab === 'Messages' && <Messages />}
       {tab === 'Projects' && <Projects />}
       {tab === 'Posts' && <Posts />}
+      {tab === 'Rooms' && <Rooms />}
     </section>
   );
 }
@@ -140,5 +141,34 @@ function Posts() {
         ))}
       </div>
     </>
+  );
+}
+
+function Rooms() {
+  const [rows, setRows] = useState(null);
+  const [now, setNow] = useState(() => Date.now());
+  const load = useCallback(async () => {
+    await supabase.rpc('purge_expired_sessions');
+    const { data } = await supabase.rpc('admin_sessions');
+    setRows(data || []);
+  }, []);
+  useEffect(() => { load(); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, [load]);
+  const left = (r) => Math.max(0, Math.floor((new Date(r.expires_at).getTime() - now) / 1000));
+  return (
+    <div className="stack">
+      <p className="dim">Live code rooms close automatically 50 minutes after creation. You can delete any room immediately.</p>
+      {rows === null && <p className="dim">Loading…</p>}
+      {rows?.length === 0 && <p className="dim">No active rooms.</p>}
+      {rows?.filter((r) => left(r) > 0).map((r) => (
+        <div key={r.id} className="card row-card">
+          <div>
+            <h3>{r.title}</h3>
+            <span className="dim mono">{r.language} · {r.owner_email} · {r.members} invited · {String(Math.floor(left(r) / 60)).padStart(2, '0')}:{String(left(r) % 60).padStart(2, '0')} left</span>
+          </div>
+          <button className="linkbtn" onClick={async () => { if (confirm(`Delete room "${r.title}" now?`)) { await supabase.from('collab_sessions').delete().eq('id', r.id); load(); } }}>Delete</button>
+        </div>
+      ))}
+      <button className="btn ghost small-btn" onClick={load} style={{ justifySelf: 'start' }}>Refresh</button>
+    </div>
   );
 }

@@ -167,3 +167,66 @@ insert into public.projects (title, description, tags, featured, sort) values
 ('Banking & Fintech QA (IDRBT – RBI)', 'Selenium WebDriver UI frameworks for payment gateway flows, plus API testing with Rest Assured and SOAP UI for government financial systems.', '{BFSI,Selenium,Rest Assured,SOAP UI}', true, 3),
 ('Internal Test API Platform', 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', '{Ruby on Rails,Sidekiq,RabbitMQ,PostgreSQL}', false, 4),
 ('Load & Performance Harness', 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', '{K6,Locust,Datadog}', false, 5);
+
+-- ---------- Session expiry (50 minutes) and admin controls ----------
+alter table public.collab_sessions
+  add column expires_at timestamptz not null default (now() + interval '50 minutes');
+
+create or replace function public.collab_sessions_lock_fields() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  new.expires_at := old.expires_at; new.created_at := old.created_at; new.owner_id := old.owner_id;
+  return new;
+end $$;
+create trigger collab_sessions_lock_fields before update on public.collab_sessions
+  for each row execute function public.collab_sessions_lock_fields();
+
+create or replace function public.can_access_session(sid uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (
+    select 1 from public.collab_sessions s
+    where s.id = sid and s.expires_at > now()
+      and (s.owner_id = auth.uid() or exists (
+        select 1 from public.collab_members m
+        where m.session_id = s.id and lower(m.email) = lower(coalesce(auth.jwt() ->> 'email', ''))))
+  );
+$$;
+create or replace function public.is_session_owner(sid uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.collab_sessions s
+    where s.id = sid and s.owner_id = auth.uid() and s.expires_at > now());
+$$;
+
+drop policy "sessions read" on public.collab_sessions;
+create policy "sessions read" on public.collab_sessions for select to authenticated
+  using ((owner_id = (select auth.uid()) and expires_at > now()) or public.can_access_session(id) or public.is_admin());
+drop policy "sessions create" on public.collab_sessions;
+create policy "sessions create" on public.collab_sessions for insert to authenticated
+  with check (owner_id = auth.uid() and expires_at <= now() + interval '51 minutes');
+drop policy "sessions delete" on public.collab_sessions;
+create policy "sessions delete" on public.collab_sessions for delete to authenticated
+  using (owner_id = auth.uid() or public.is_admin());
+
+create or replace function public.purge_expired_sessions() returns int
+language sql security definer set search_path = '' as $$
+  with d as (delete from public.collab_sessions where expires_at <= now() returning 1)
+  select count(*)::int from d;
+$$;
+
+create or replace function public.admin_sessions()
+returns table(id uuid, title text, language text, owner_email text, members int, created_at timestamptz, expires_at timestamptz)
+language sql stable security definer set search_path = '' as $$
+  select s.id, s.title, s.language, u.email::text,
+         (select count(*)::int from public.collab_members m where m.session_id = s.id), s.created_at, s.expires_at
+  from public.collab_sessions s join auth.users u on u.id = s.owner_id
+  where public.is_admin() order by s.created_at desc;
+$$;
+
+revoke execute on function public.can_access_session(uuid), public.is_session_owner(uuid),
+  public.purge_expired_sessions(), public.admin_sessions(), public.views_by_day(int) from public, anon;
+grant execute on function public.can_access_session(uuid), public.is_session_owner(uuid),
+  public.purge_expired_sessions(), public.admin_sessions(), public.views_by_day(int) to authenticated;
+
+-- Optional: server-side cleanup every minute (needs pg_cron)
+-- create extension if not exists pg_cron with schema pg_catalog;
+-- select cron.schedule('purge-expired-collab-sessions', '* * * * *', 'select public.purge_expired_sessions()');

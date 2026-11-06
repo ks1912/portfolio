@@ -185,3 +185,5 @@ a.card.row-card { display: flex; }
 .pw .linkbtn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 4px 6px; font-size: .8rem; }
 .auth-links { margin-top: 14px; text-align: center; }
 @media (max-width: 860px) { .auth { grid-template-columns: 1fr; min-height: 0; } }
+.chip.warn { color: var(--amber); border-color: rgba(255,181,71,.5); }
+.ended { text-align: center; display: grid; gap: 10px; justify-items: center; margin-bottom: 16px; border-color: var(--amber); }

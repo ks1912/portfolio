@@ -2,9 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import * as Y from 'yjs';
 import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
-import { python } from '@codemirror/lang-python';
-import { oneDark } from '@codemirror/theme-one-dark';
+import { LANGS, THEMES } from '../lib/langs';
 import { yCollab } from 'y-codemirror.next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
@@ -38,7 +36,7 @@ export function CollabHome() {
     e.preventDefault();
     const { data, error } = await supabase
       .from('collab_sessions')
-      .insert({ title: title || 'Untitled session', language: lang, content: lang === 'python' ? 'print("hello, team")\n' : 'console.log("hello, team");\n' })
+      .insert({ title: title || 'Untitled session', language: lang, content: LANGS[lang].starter })
       .select('id')
       .single();
     if (error) return setErr(error.message);
@@ -52,8 +50,7 @@ export function CollabHome() {
       <form className="card form inline" onSubmit={create}>
         <input placeholder="Room name" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
         <select value={lang} onChange={(e) => setLang(e.target.value)}>
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
+          {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
         <button className="btn">Create room</button>
       </form>
@@ -62,7 +59,7 @@ export function CollabHome() {
         {rooms.length === 0 && <p className="dim">No rooms yet. Create one, or ask a friend to invite {user.email}.</p>}
         {rooms.map((r) => (
           <Link key={r.id} to={`/collab/${r.id}`} className="card proj row-card">
-            <div><h3>{r.title}</h3><span className="dim mono">{r.language} · {r.owner_id === user.id ? 'owner' : 'invited'}</span></div>
+            <div><h3>{r.title}</h3><span className="dim mono">{LANGS[r.language]?.label || r.language} · {r.owner_id === user.id ? 'owner' : 'invited'}</span></div>
             <span className="dim">{new Date(r.updated_at).toLocaleString()}</span>
           </Link>
         ))}
@@ -105,12 +102,14 @@ export function CollabRoom() {
   const [status, setStatus] = useState({ peers: 1 });
   const [ext, setExt] = useState([]);
   const [out, setOut] = useState([]);
+  const [lang, setLang] = useState(null);
+  const [themeKey, setThemeKey] = useState(() => { try { return localStorage.getItem('editor-theme') || 'one-dark'; } catch { return 'one-dark'; } });
   const doc = useMemo(() => new Y.Doc(), [id]);
   const providerRef = useRef(null);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('collab_sessions').select('*').eq('id', id).maybeSingle().then(({ data }) => setRoom(data));
+    supabase.from('collab_sessions').select('*').eq('id', id).maybeSingle().then(({ data }) => { setRoom(data); if (data) setLang(data.language); });
     supabase.from('collab_members').select('email').eq('session_id', id).then(({ data }) => setMembers(data || []));
   }, [id, user]);
 
@@ -144,7 +143,9 @@ export function CollabRoom() {
   if (!room) return <section className="sec narrow"><p>Room not found, or you have not been invited. <Link to="/collab">Back</Link></p></section>;
 
   const owner = room.owner_id === user.id;
-  const langExt = room.language === 'python' ? python() : javascript();
+  const L = LANGS[lang || room.language] || LANGS.javascript;
+  const langExt = L.ext();
+  const pickTheme = (k) => { setThemeKey(k); try { localStorage.setItem('editor-theme', k); } catch { /* ignore */ } };
 
   async function addMember(e) {
     e.preventDefault();
@@ -172,12 +173,18 @@ export function CollabRoom() {
         <div className="room-meta">
           <span className="chip live">● {status.peers || 1} online</span>
           <span className="chip">{status.status === 'SUBSCRIBED' ? 'connected' : status.status || 'connecting…'}</span>
-          {room.language === 'javascript' && <button className="btn" onClick={run}>▶ Run</button>}
+          <select className="mini" value={lang || room.language} onChange={(e) => setLang(e.target.value)} aria-label="Language">
+            {Object.entries(LANGS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+          <select className="mini" value={themeKey} onChange={(e) => pickTheme(e.target.value)} aria-label="Editor theme">
+            {Object.entries(THEMES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+          {L.runnable && <button className="btn" onClick={run}>▶ Run</button>}
         </div>
       </div>
       <div className="room-body">
         <div className="editor">
-          {ext.length > 0 && <CodeMirror height="100%" theme={oneDark} extensions={[langExt, ...ext]} basicSetup={{ history: false }} />}
+          {ext.length > 0 && <CodeMirror height="100%" theme={THEMES[themeKey].theme} extensions={[langExt, ...ext]} basicSetup={{ history: false }} />}
         </div>
         <aside className="side">
           <h4>People</h4>
@@ -193,7 +200,7 @@ export function CollabRoom() {
           )}
           <p className="dim small">Invited people must sign in with that exact email to join.</p>
           <h4>Output</h4>
-          <pre className="out">{out.length === 0 ? <span className="dim">Run JavaScript to see output.</span> : out.map((o, i) => <div key={i} className={o.t === 'err' ? 'err' : ''}>{o.m}</div>)}</pre>
+          <pre className="out">{out.length === 0 ? <span className="dim">Output appears here for JavaScript. Other languages are edit-only.</span> : out.map((o, i) => <div key={i} className={o.t === 'err' ? 'err' : ''}>{o.m}</div>)}</pre>
         </aside>
       </div>
     </section>

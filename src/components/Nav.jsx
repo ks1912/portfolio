@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { supabase, backendReady } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function Nav() {
   const { user, admin } = useAuth();
@@ -13,14 +13,13 @@ export default function Nav() {
         <NavLink to="/cheatsheets">Cheatsheets</NavLink>
         <NavLink to="/blog">Blog</NavLink>
         <NavLink to="/contact">Contact</NavLink>
-        {backendReady && <NavLink to="/collab" className="pill">Live code</NavLink>}
+        <NavLink to="/collab" className="pill">Live code</NavLink>
         {admin && <NavLink to="/admin">Admin</NavLink>}
-        {backendReady &&
-          (user ? (
-            <button className="linkbtn" onClick={() => supabase.auth.signOut()}>Sign out</button>
-          ) : (
-            <NavLink to="/login">Sign in</NavLink>
-          ))}
+        {user ? (
+          <button className="linkbtn" onClick={() => supabase.auth.signOut()}>Sign out</button>
+        ) : (
+          <NavLink to="/login">Sign in</NavLink>
+        )}
       </nav>
     </header>
   );

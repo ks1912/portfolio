@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './lib/auth';
 import { trackView } from './lib/data';
 import Nav from './components/Nav';
@@ -20,7 +20,7 @@ function Tracker() {
 }
 
 function NeedsBackend({ children }) {
-  return backendReady ? children : <section className="sec narrow"><p className="dim">This feature needs the backend connection.</p></section>;
+  return backendReady ? children : <section className="sec narrow"><><h2><span className="num">{'</>'}</span> Coming online</h2><p className="lede">Accounts and live code rooms are being switched on. Check back shortly, or <Link to="/contact">message me</Link>.</p></></section>;
 }
 
 export default function App() {

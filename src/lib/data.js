@@ -8,6 +8,7 @@ export const profile = {
   site: 'kunalsingh.tech',
   github: 'ks1912',
   githubUrl: 'https://github.com/ks1912',
+  linkedinUrl: 'https://www.linkedin.com/in/ks1912/',
   about:
     'I build the safety net that lets product teams ship fast. Over 5 years I have designed automation frameworks, API and load testing strategies, and CI/CD pipelines for healthcare, e-commerce and BFSI products, and I lead the people who run them.',
 };

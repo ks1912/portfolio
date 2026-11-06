@@ -116,7 +116,7 @@ export default function Home() {
         <div className="contact-grid">
           <Reveal>
             <p className="lede">Hiring, collaborating, or want to pair on a tricky test problem? Send a note, or open a live coding room and we can write it together.</p>
-            <p className="mono">{profile.email}<br />{profile.location}<br /><a href={profile.githubUrl} target="_blank" rel="noreferrer">github.com/{profile.github} ↗</a></p>
+            <p className="mono">{profile.email}<br />{profile.location}<br /><a href={profile.githubUrl} target="_blank" rel="noreferrer">github.com/{profile.github} ↗</a><br /><a href={profile.linkedinUrl} target="_blank" rel="noreferrer">linkedin.com/in/ks1912 ↗</a></p>
           </Reveal>
           <Reveal delay={100}><ContactForm /></Reveal>
         </div>

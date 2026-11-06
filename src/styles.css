@@ -159,14 +159,7 @@ input[type=checkbox] { width: auto; }
   .reveal { opacity: 1; transform: none; }
 }
 
-.snip-label { font: 500 .7rem var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
-.snip-code { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; text-align: left; background: #07090b; border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; cursor: pointer; color: #c4cdd6; font: inherit; }
-.snip-code code { font: .78rem var(--mono); overflow-x: auto; white-space: nowrap; }
-.snip-code span { font: .65rem var(--mono); color: var(--dim); flex-shrink: 0; }
-.snip-code:hover { border-color: var(--pass); } .snip-code:hover span { color: var(--pass); }
 .skills > *, .snip, .stack > * { min-width: 0; }
-.snip-code code { min-width: 0; flex: 1; scrollbar-width: none; }
-.snip-code code { white-space: pre-wrap; word-break: break-word; overflow: visible; }
 .mini { width: auto; padding: 8px 10px; font-size: .85rem; }
 a.card.row-card { display: flex; }
 
@@ -187,3 +180,41 @@ a.card.row-card { display: flex; }
 @media (max-width: 860px) { .auth { grid-template-columns: 1fr; min-height: 0; } }
 .chip.warn { color: var(--amber); border-color: rgba(255,181,71,.5); }
 .ended { text-align: center; display: grid; gap: 10px; justify-items: center; margin-bottom: 16px; border-color: var(--amber); }
+
+.cs { max-width: 1240px; margin: 0 auto; padding: clamp(36px, 6vw, 80px) clamp(16px, 4vw, 48px); }
+.cs-head h1 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.03em; }
+.cs-head .lede { margin: 10px 0 22px; }
+.cs-search { position: relative; max-width: 560px; }
+.cs-search input { padding: 14px 44px 14px 16px; font-size: 1rem; border-radius: 12px; }
+.cs-search kbd { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font: .8rem var(--mono); color: var(--dim); border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; }
+.cs-layout { display: grid; grid-template-columns: 220px 1fr; gap: 36px; margin-top: 34px; align-items: start; }
+.cs-nav { position: sticky; top: 88px; display: grid; gap: 4px; }
+.cs-nav button { display: flex; justify-content: space-between; align-items: center; background: none; border: 0; border-left: 2px solid var(--line); color: var(--dim); padding: 9px 12px; font: 500 .95rem var(--sans); text-align: left; cursor: pointer; border-radius: 0 8px 8px 0; }
+.cs-nav button em { font: .72rem var(--mono); font-style: normal; color: var(--dim); }
+.cs-nav button:hover { color: var(--text); background: var(--panel); }
+.cs-nav button.on { color: var(--pass); border-left-color: var(--pass); background: rgba(57,255,156,.06); }
+.cs-main { min-width: 0; display: grid; gap: 38px; }
+.cs-title { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.cs-title h2 { font-size: 1.8rem; margin: 0; display: block; }
+.cs-group { margin-top: 26px; }
+.cs-group h3 { font: 500 .78rem var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--pass); margin-bottom: 8px; }
+.cs-row { display: grid; grid-template-columns: minmax(160px, 30%) 1fr; gap: 18px; align-items: start; padding: 11px 0; border-bottom: 1px solid rgba(35,42,50,.6); }
+.cs-desc { color: #b7c1cb; font-size: .95rem; padding-top: 8px; }
+.cs-code { position: relative; min-width: 0; }
+.cs-code pre { margin: 0; background: #07090b; border: 1px solid var(--line); border-radius: 9px; padding: 10px 76px 10px 14px; font: .82rem/1.55 var(--mono); color: #d6dee6; white-space: pre-wrap; word-break: break-word; }
+.cs-code code { font: inherit; }
+.cs-code button { position: absolute; right: 8px; top: 8px; background: var(--panel2); border: 1px solid var(--line); color: var(--dim); font: .72rem var(--mono); padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+.cs-code button:hover { color: var(--pass); border-color: var(--pass); }
+.cs-row:hover .cs-code pre { border-color: #33404c; }
+@media (max-width: 860px) {
+  .cs-layout { grid-template-columns: 1fr; gap: 20px; }
+  .cs-nav { position: static; display: flex; overflow-x: auto; gap: 8px; padding-bottom: 6px; }
+  .cs-nav button { border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; gap: 8px; }
+  .cs-nav button.on { border-color: var(--pass); }
+  .cs-row { grid-template-columns: 1fr; gap: 6px; }
+  .cs-desc { padding-top: 0; }
+}
+@media (max-width: 760px) {
+  .nav { flex-direction: column; gap: 8px; padding: 12px 16px; position: static; }
+  .nav nav { justify-content: center; gap: 6px 14px; font-size: .9rem; }
+}

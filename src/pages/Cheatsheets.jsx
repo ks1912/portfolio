@@ -1,82 +1,91 @@
-import { useState } from 'react';
-import Reveal from '../components/Reveal';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { sheets, totalCommands } from '../lib/cheatsheets';
 
-const sheets = [
-  { title: 'Playwright', items: [
-    ['Async / await', 'await page.click(selector)'],
-    ['Locators', "page.locator('text=Submit')"],
-    ['Role locator', "page.getByRole('button', { name: 'Save' })"],
-    ['Web-first assert', "await expect(page.getByRole('status')).toHaveText('Saved')"],
-    ['Trace viewer', 'await context.tracing.start({ screenshots: true })'],
-    ['API request', "await request.get('/api/health')"],
-  ] },
-  { title: 'Cypress', items: [
-    ['Intercept', "cy.intercept('GET', '/api/*').as('list')"],
-    ['Wait on alias', "cy.wait('@list')"],
-    ['Custom command', 'Cypress.Commands.add(name, fn)'],
-    ['Fixtures', "cy.fixture('data.json')"],
-  ] },
-  { title: 'TypeScript', items: [
-    ['Interfaces', 'interface User { name: string }'],
-    ['Enums', 'enum Status { Active, Inactive }'],
-    ['Generics', 'function id<T>(arg: T): T'],
-    ['Utility types', 'Partial<User> | Pick<User, "name">'],
-  ] },
-  { title: 'JavaScript', items: [
-    ['Destructuring', 'const { name } = user'],
-    ['Promises', 'promise.then().catch()'],
-    ['Map / filter', 'array.map((x) => x * 2)'],
-    ['Parallel async', 'await Promise.all([a(), b()])'],
-  ] },
-  { title: 'Git & GitHub', items: [
-    ['Branching', 'git checkout -b feature/new'],
-    ['Push branch', 'git push origin branch'],
-    ['Actions trigger', 'on: [push, pull_request]'],
-    ['Stash', 'git stash push -m "wip"'],
-  ] },
-  { title: 'Jenkins', items: [
-    ['Pipeline', 'pipeline { agent any }'],
-    ['Env var (Groovy)', 'def buildNumber = env.BUILD_ID'],
-    ['Stage', 'stage("Test") { steps { sh "npm test" } }'],
-  ] },
-  { title: 'AWS', items: [
-    ['S3 copy', 'aws s3 cp file.txt s3://bucket'],
-    ['EC2 list', 'aws ec2 describe-instances'],
-    ['CloudWatch logs', 'aws logs get-log-events'],
-  ] },
-  { title: 'Load testing (K6)', items: [
-    ['Run', 'k6 run script.js'],
-    ['Virtual users', 'export const options = { vus: 50, duration: "1m" }'],
-    ['Threshold', "thresholds: { http_req_duration: ['p(95)<500'] }"],
-  ] },
-];
-
-function Snippet({ label, code }) {
+function Row({ desc, cmd }) {
   const [done, setDone] = useState(false);
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(cmd); } catch { /* clipboard unavailable */ }
+    setDone(true);
+    setTimeout(() => setDone(false), 1200);
+  };
   return (
-    <div className="snip">
-      <div className="snip-label">{label}</div>
-      <button className="snip-code" title="Click to copy" onClick={() => { navigator.clipboard?.writeText(code); setDone(true); setTimeout(() => setDone(false), 1200); }}>
-        <code>{code}</code><span>{done ? '✓ copied' : 'copy'}</span>
-      </button>
+    <div className="cs-row">
+      <div className="cs-desc">{desc}</div>
+      <div className="cs-code">
+        <pre><code>{cmd}</code></pre>
+        <button onClick={copy} aria-label={`Copy: ${desc}`}>{done ? '✓ Copied' : 'Copy'}</button>
+      </div>
     </div>
   );
 }
 
 export default function Cheatsheets() {
+  const [active, setActive] = useState(sheets[0].id);
+  const [q, setQ] = useState('');
+  const search = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') { e.preventDefault(); search.current?.focus(); }
+      if (e.key === 'Escape') { setQ(''); search.current?.blur(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const term = q.trim().toLowerCase();
+  const results = useMemo(() => {
+    if (!term) return null;
+    return sheets
+      .map((s) => ({
+        ...s,
+        groups: s.groups
+          .map((g) => ({ ...g, items: g.items.filter(([d, c]) => (d + ' ' + c + ' ' + s.title + ' ' + g.name).toLowerCase().includes(term)) }))
+          .filter((g) => g.items.length),
+      }))
+      .filter((s) => s.groups.length);
+  }, [term]);
+
+  const sheet = sheets.find((s) => s.id === active);
+  const shown = results ?? [sheet];
+  const hits = results ? results.reduce((n, s) => n + s.groups.reduce((m, g) => m + g.items.length, 0), 0) : 0;
+  const count = (s) => s.groups.reduce((n, g) => n + g.items.length, 0);
+
   return (
-    <section className="sec">
-      <h2><span className="num">{'{ }'}</span> Developer reference</h2>
-      <p className="lede" style={{ marginBottom: 28 }}>Quick reference for methods and commands across my core stack. Click any snippet to copy it.</p>
-      <div className="skills">
-        {sheets.map((s, i) => (
-          <Reveal key={s.title} delay={i * 40} className="card">
-            <h4>{s.title}</h4>
-            <div className="stack" style={{ marginTop: 0, gap: 10 }}>
-              {s.items.map(([l, c]) => <Snippet key={l} label={l} code={c} />)}
+    <section className="cs">
+      <header className="cs-head">
+        <h1>Developer reference</h1>
+        <p className="lede">{totalCommands} commands across the tools I use every day. Click Copy on any row.</p>
+        <div className="cs-search">
+          <input ref={search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search commands, e.g. intercept, rebase, helm…" aria-label="Search commands" />
+          <kbd>/</kbd>
+        </div>
+      </header>
+
+      <div className="cs-layout">
+        <nav className="cs-nav" aria-label="Technologies">
+          {sheets.map((s) => (
+            <button key={s.id} className={!results && s.id === active ? 'on' : ''} onClick={() => { setQ(''); setActive(s.id); }}>
+              <span>{s.title}</span><em>{count(s)}</em>
+            </button>
+          ))}
+        </nav>
+
+        <div className="cs-main">
+          {results && <p className="dim">{hits} result{hits === 1 ? '' : 's'} for “{q}”</p>}
+          {results && results.length === 0 && <p className="dim">Nothing matches. Try a shorter word.</p>}
+          {shown.map((s) => (
+            <div key={s.id} className="cs-sheet">
+              <div className="cs-title"><h2>{s.title}</h2><span className="dim">{s.blurb}</span></div>
+              {s.groups.map((g) => (
+                <div key={g.name} className="cs-group">
+                  <h3>{g.name}</h3>
+                  {g.items.map(([d, c]) => <Row key={d + c} desc={d} cmd={c} />)}
+                </div>
+              ))}
             </div>
-          </Reveal>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

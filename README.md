@@ -11,3 +11,5 @@ React + Vite frontend, Supabase backend (Postgres, Auth, Realtime).
 ## Deploy
 Import the repo into Vercel or Netlify, add the two `VITE_` env vars, build command `npm run build`, output `dist`.
 In Supabase → Auth → URL Configuration, set Site URL to the deployed domain.
+
+Live site: https://ks1912.github.io/portfolio/

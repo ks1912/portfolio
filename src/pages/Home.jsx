@@ -19,7 +19,7 @@ export default function Home() {
     <>
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow"><span className="dot" /> Available for senior QA and SDET roles</p>
+          <p className="eyebrow"><span className="dot" /> SDET · QA Team Lead · Hyderabad</p>
           <h1>
             I make software<br />
             <span className="grad">impossible to break</span><br />

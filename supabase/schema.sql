@@ -133,7 +133,7 @@ alter table public.collab_sessions enable row level security;
 alter table public.collab_members enable row level security;
 
 create policy "sessions read" on public.collab_sessions for select to authenticated
-  using (public.can_access_session(id));
+  using (owner_id = (select auth.uid()) or public.can_access_session(id));
 create policy "sessions create" on public.collab_sessions for insert to authenticated
   with check (owner_id = auth.uid());
 create policy "sessions update" on public.collab_sessions for update to authenticated

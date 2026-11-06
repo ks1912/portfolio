@@ -10,6 +10,7 @@ export default function Nav() {
       <nav>
         <a href={`${import.meta.env.BASE_URL}#experience`}>Experience</a>
         <a href={`${import.meta.env.BASE_URL}#projects`}>Projects</a>
+        <NavLink to="/cheatsheets">Cheatsheets</NavLink>
         <NavLink to="/blog">Blog</NavLink>
         <NavLink to="/contact">Contact</NavLink>
         {backendReady && <NavLink to="/collab" className="pill">Live code</NavLink>}

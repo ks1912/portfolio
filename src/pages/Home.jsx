@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import TestRun from '../components/TestRun';
 import ContactForm from '../components/ContactForm';
-import { profile, stats, experience, skills, loadProjects, loadPosts, fallbackProjects } from '../lib/data';
+import { profile, stats, experience, education, skills, loadProjects, loadPosts, fallbackProjects } from '../lib/data';
 import { supabase } from '../lib/supabase';
 
 export default function Home() {
@@ -86,9 +86,19 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="education" className="sec">
+        <Reveal><h2><span className="num">04</span> Education</h2></Reveal>
+        {education.map((e) => (
+          <Reveal key={e.degree} className="card">
+            <div className="job-head"><h3>{e.degree}</h3><span className="period">{e.period}</span></div>
+            <p className="role">{e.school}</p>
+          </Reveal>
+        ))}
+      </section>
+
       {posts.length > 0 && (
         <section className="sec">
-          <Reveal><h2><span className="num">04</span> Writing</h2></Reveal>
+          <Reveal><h2><span className="num">05</span> Writing</h2></Reveal>
           <div className="projects">
             {posts.map((p) => (
               <Link key={p.id} to={`/blog/${p.slug}`} className="card proj">
@@ -102,11 +112,11 @@ export default function Home() {
       )}
 
       <section id="contact" className="sec">
-        <Reveal><h2><span className="num">05</span> Let's talk</h2></Reveal>
+        <Reveal><h2><span className="num">06</span> Let's talk</h2></Reveal>
         <div className="contact-grid">
           <Reveal>
             <p className="lede">Hiring, collaborating, or want to pair on a tricky test problem? Send a note, or open a live coding room and we can write it together.</p>
-            <p className="mono">{profile.email}<br />{profile.location}</p>
+            <p className="mono">{profile.email}<br />{profile.location}<br /><a href={profile.githubUrl} target="_blank" rel="noreferrer">github.com/{profile.github} ↗</a></p>
           </Reveal>
           <Reveal delay={100}><ContactForm /></Reveal>
         </div>

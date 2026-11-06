@@ -162,10 +162,11 @@ create policy "collab realtime write" on realtime.messages for insert to authent
 
 -- ---------- Seed content ----------
 insert into public.projects (title, description, tags, featured, sort) values
-('Klara & EMA E2E Automation', 'Playwright suites in Python and JavaScript covering two healthcare products, with API, contract and SQL data-integrity checks wired into GitHub Actions, ArgoCD and Docker pipelines.', '{Playwright,Python,GitHub Actions,ArgoCD}', true, 1),
-('Internal Test API Platform', 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', '{Ruby on Rails,Sidekiq,RabbitMQ,PostgreSQL}', true, 2),
-('Load & Performance Harness', 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', '{K6,Locust,Datadog}', true, 3),
-('Cypress Regression Framework', 'UI regression and functional framework for MyParadigm, with Docker and Jenkins execution and Report Portal reporting.', '{Cypress,JavaScript,Jenkins,Docker}', false, 4);
+('Healthcare Automation & Microservices (Modmed)', 'Led a QA team of 3. Moved testing from a monolith to microservices, ran infrastructure with Helm charts and Terraform, and performed advanced SQL testing and WCAG accessibility audits on Klara and EMA.', '{Healthcare,Microservices,Helm,Terraform,SQL Testing,WCAG}', true, 1),
+('E-Commerce Enterprise Framework (Feuji)', 'Playwright and Cypress automation for enterprise products such as InsightsFirst and AnalyticsApp, with Allure and Report Portal wired into CI/CD to cut manual effort.', '{E-Commerce,Playwright,Cypress,CI/CD,Allure,Report Portal}', true, 2),
+('Banking & Fintech QA (IDRBT – RBI)', 'Selenium WebDriver UI frameworks for payment gateway flows, plus API testing with Rest Assured and SOAP UI for government financial systems.', '{BFSI,Selenium,Rest Assured,SOAP UI}', true, 3),
+('Internal Test API Platform', 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', '{Ruby on Rails,Sidekiq,RabbitMQ,PostgreSQL}', false, 4),
+('Load & Performance Harness', 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', '{K6,Locust,Datadog}', false, 5);
 
 insert into public.posts (slug, title, excerpt, body, published) values
 ('killing-flaky-tests', 'Killing flaky tests: a field guide',

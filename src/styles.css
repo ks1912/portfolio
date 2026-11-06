@@ -158,3 +158,12 @@ input[type=checkbox] { width: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+.snip-label { font: 500 .7rem var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-bottom: 4px; }
+.snip-code { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; text-align: left; background: #07090b; border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; cursor: pointer; color: #c4cdd6; font: inherit; }
+.snip-code code { font: .78rem var(--mono); overflow-x: auto; white-space: nowrap; }
+.snip-code span { font: .65rem var(--mono); color: var(--dim); flex-shrink: 0; }
+.snip-code:hover { border-color: var(--pass); } .snip-code:hover span { color: var(--pass); }
+.skills > *, .snip, .stack > * { min-width: 0; }
+.snip-code code { min-width: 0; flex: 1; scrollbar-width: none; }
+.snip-code code { white-space: pre-wrap; word-break: break-word; overflow: visible; }

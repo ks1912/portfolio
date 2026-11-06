@@ -7,6 +7,7 @@ export const profile = {
   email: 'kunalsingh886312@gmail.com',
   site: 'kunalsingh.tech',
   github: 'ks1912',
+  githubUrl: 'https://github.com/ks1912',
   about:
     'I build the safety net that lets product teams ship fast. Over 5 years I have designed automation frameworks, API and load testing strategies, and CI/CD pipelines for healthcare, e-commerce and BFSI products, and I lead the people who run them.',
 };
@@ -59,20 +60,25 @@ export const experience = [
   },
 ];
 
+export const education = [
+  { degree: 'B.Tech in Computer Science and Engineering', school: 'Abhinav Hi-Tech College of Engineering (JNTUH)', period: '2016 – 2020' },
+];
+
 export const skills = [
   { group: 'Languages', items: ['JavaScript / TypeScript', 'Python', 'Ruby on Rails', 'YAML', 'SQL'] },
-  { group: 'UI automation', items: ['Playwright', 'Cypress', 'Selenium', 'Page Object Model'] },
+  { group: 'UI automation', items: ['Playwright', 'Cypress', 'Selenium', 'Page Object Model', 'Cucumber'] },
   { group: 'API & load', items: ['Rest Assured', 'Postman', 'SOAP UI', 'K6', 'Locust'] },
   { group: 'CI/CD & infra', items: ['GitHub Actions', 'Jenkins', 'Docker', 'ArgoCD', 'Helm', 'k9s', 'Terraform', 'AWS'] },
   { group: 'Data & services', items: ['PostgreSQL', 'MySQL', 'MongoDB', 'RabbitMQ', 'Sidekiq', 'Twilio'] },
-  { group: 'Practice', items: ['SAFe Agile', 'JIRA', 'WCAG', 'Datadog', 'Report Portal', 'ReactJS'] },
+  { group: 'Practice', items: ['SAFe Agile', 'JIRA', 'WCAG', 'Datadog', 'Report Portal', 'Allure', 'ReactJS', 'ChatGPT', 'Copilot'] },
 ];
 
 export const fallbackProjects = [
-  { id: 'p1', title: 'Klara & EMA E2E Automation', description: 'Playwright suites in Python and JavaScript for two healthcare products, with API, contract and SQL data-integrity checks wired into GitHub Actions, ArgoCD and Docker pipelines.', tags: ['Playwright', 'Python', 'GitHub Actions', 'ArgoCD'], featured: true },
-  { id: 'p2', title: 'Internal Test API Platform', description: 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', tags: ['Ruby on Rails', 'Sidekiq', 'RabbitMQ', 'PostgreSQL'], featured: true },
-  { id: 'p3', title: 'Load & Performance Harness', description: 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', tags: ['K6', 'Locust', 'Datadog'], featured: true },
-  { id: 'p4', title: 'Cypress Regression Framework', description: 'UI regression and functional framework for MyParadigm, with Docker and Jenkins execution and Report Portal reporting.', tags: ['Cypress', 'JavaScript', 'Jenkins', 'Docker'], featured: false },
+  { id: 'p1', title: 'Healthcare Automation & Microservices (Modmed)', description: 'Led a QA team of 3. Moved testing from a monolith to microservices, ran infrastructure with Helm charts and Terraform, and performed advanced SQL testing and WCAG accessibility audits on Klara and EMA.', tags: ['Healthcare', 'Microservices', 'Helm', 'Terraform', 'SQL Testing', 'WCAG'], featured: true },
+  { id: 'p2', title: 'E-Commerce Enterprise Framework (Feuji)', description: 'Playwright and Cypress automation for enterprise products such as InsightsFirst and AnalyticsApp, with Allure and Report Portal wired into CI/CD to cut manual effort.', tags: ['E-Commerce', 'Playwright', 'Cypress', 'CI/CD', 'Allure', 'Report Portal'], featured: true },
+  { id: 'p3', title: 'Banking & Fintech QA (IDRBT – RBI)', description: 'Selenium WebDriver UI frameworks for payment gateway flows, plus API testing with Rest Assured and SOAP UI for government financial systems.', tags: ['BFSI', 'Selenium', 'Rest Assured', 'SOAP UI'], featured: true },
+  { id: 'p4', title: 'Internal Test API Platform', description: 'Test APIs that generate data, mock environments and stabilise automation runs, which makes suites faster and far less flaky.', tags: ['Ruby on Rails', 'Sidekiq', 'RabbitMQ', 'PostgreSQL'], featured: false },
+  { id: 'p5', title: 'Load & Performance Harness', description: 'K6 and Locust scenarios for realistic traffic, monitored through Datadog during runs to catch regressions before production.', tags: ['K6', 'Locust', 'Datadog'], featured: false },
 ];
 
 export async function loadProjects() {

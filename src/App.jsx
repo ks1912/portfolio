@@ -5,6 +5,7 @@ import { trackView } from './lib/data';
 import Nav from './components/Nav';
 import Home from './pages/Home';
 import Contact from './pages/Contact';
+import Cheatsheets from './pages/Cheatsheets';
 import Login from './pages/Login';
 const Admin = lazy(() => import('./pages/Admin'));
 import { BlogList, BlogPost } from './pages/Blog';
@@ -33,6 +34,7 @@ export default function App() {
           <Suspense fallback={<section className="sec narrow"><p className="dim">Loading…</p></section>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/cheatsheets" element={<Cheatsheets />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
